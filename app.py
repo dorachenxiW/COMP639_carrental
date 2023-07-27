@@ -26,7 +26,7 @@ def getCursor():
     return dbconn
 
 @app.route("/")
-def home():
+def hometest():
     return render_template("home1.html")
 
 # http://localhost:5000/login/ - this will be the login page, we need to use both GET and POST requests
