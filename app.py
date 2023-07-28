@@ -13,6 +13,8 @@ import bcrypt
 
 app = Flask(__name__)
 
+app.secret_key = '1234'
+
 dbconn = None
 connection = None
 
@@ -37,11 +39,11 @@ def login():
     # Check if "username" and "password" POST requests exist (user submitted form)
     if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
         # Create variables for easy access
-        username = request.form.get('username')
-        user_password = request.form.get('password')
+        username = request.form['username']
+        user_password = request.form['password']
         # Check if account exists using MySQL
         connection = getCursor()
-        connection.execute('SELECT * FROM users WHERE username = %s', (username,))
+        connection.execute('SELECT * FROM user WHERE username = %s', (username,))
         # Fetch one record and return result
         account = connection.fetchone()
         print(account)
@@ -64,7 +66,18 @@ def login():
     # Show the login form with message (if any)
     return render_template('index.html', msg=msg)
 
-""" # http://localhost:5000/home - this will be the home page, only accessible for loggedin users
+# http://localhost:5000/logout - this will be the logout page
+@app.route('/logout')
+def logout():
+    # Remove session data, this will log the user out
+   session.pop('loggedin', None)
+   session.pop('id', None)
+   session.pop('username', None)
+   # Redirect to login page
+   return redirect(url_for('login'))
+
+
+ # http://localhost:5000/home - this will be the home page, only accessible for loggedin users
 @app.route('/home')
 def home():
     # Check if user is loggedin
@@ -73,7 +86,6 @@ def home():
         return render_template('home.html', username=session['username'])
     # User is not loggedin redirect to login page
     return redirect(url_for('login'))
- """
 
 # http://localhost:5000/register - this will be the registration page, we need to use both GET and POST requests
 @app.route('/register', methods=['GET', 'POST'])
@@ -87,9 +99,9 @@ def register():
         password = request.form['password']
         email = request.form['email']
         # Check if account exists using MySQL
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
-        account = cursor.fetchone()
+        connection = getCursor()
+        connection.execute('SELECT * FROM user WHERE username = %s', (username,))
+        account = connection.fetchone()
         # If account exists show error and validation checks
         if account:
             msg = 'Account already exists!'
@@ -103,11 +115,25 @@ def register():
             # Account doesnt exists and the form data is valid, now insert new account into accounts table
             hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
             print(hashed)
-            cursor.execute('INSERT INTO users VALUES (NULL, %s, %s, %s)', (username, password, email,))
-            mysql.connection.commit()
+            connection.execute('INSERT INTO user (username, password, email) VALUES (%s, %s, %s);', (username, hashed, email),)
+            #mysql.connection.commit()
             msg = 'You have successfully registered!'
     elif request.method == 'POST':
         # Form is empty... (no POST data)
         msg = 'Please fill out the form!'
     # Show registration form with message (if any)
     return render_template('register.html', msg=msg)
+
+# http://localhost:5000/profile - this will be the profile page, only accessible for loggedin users
+@app.route('/profile')
+def profile():
+    # Check if user is loggedin
+    if 'loggedin' in session:
+        # We need all the account info for the user so we can display it on the profile page
+        connection = getCursor()
+        connection.execute('SELECT * FROM user WHERE userid = %s', (session['id'],))
+        account = connection.fetchone()
+        # Show the profile page with account info
+        return render_template('profile.html', account=account)
+    # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
