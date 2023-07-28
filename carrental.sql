@@ -38,9 +38,9 @@ foreign key(carid) references car(carid)
 );
 
 insert into user values
-(1, 'james','James','Smith', 111, 'james@carrental.com','customer'),
-(2, 'michael','Michael', 'Williams', 222, 'michael@carrental.com','staff'),
-(3, 'dora','Dora','Wang',333, 'dora@carrental.com','admin');
+(1, 'james','James','Smith', '$2b$12$/RqUO/ndFG8gJ8HV3Pf39enYNFUPlq/xz8R.R/mKW2dHPbqZjqpGm', 'james@carrental.com','customer'),
+(2, 'michael','Michael', 'Williams', '$2b$12$qWhbQbAVLU/gDq2s/sBIS.0kllMCof90.UNM6elLrvsp9Hof1UyGq', 'michael@carrental.com','staff'),
+(3, 'dora','Dora','Wang','$2b$12$uEwmPw93iuZVKVlIk/vzJ.SM5rgDqWuDsXy0O2BzSThTo8i09VUxW', 'dora@carrental.com','admin');
 
 insert into car values
 (1, 'ABC111', 'Toyota Prius','sliver','2021', 'rent out', 50.05),
