@@ -9,6 +9,7 @@ body {
     background-color: #435165;
     margin: 0;
 }
+
 .login, .register {
     width: 400px;
     background-color: #ffffff;
@@ -111,37 +112,14 @@ body {
     padding: 2px 8px 0 0;
 }
 .navtop div a:hover {
-    color: #eaebed;
+    color: #eaebed
 }
-body.loggedin {
-    background-color: #f3f4f7;
-}
-.content {
-    width: 1000px;
-    margin: 0 auto;
-}
-.content h2 {
-    margin: 0;
-    padding: 25px 0;
-    font-size: 22px;
-    border-bottom: 1px solid #e0e0e3;
-    color: #4a536e;
-}
-.content > p, .content > div {
-    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);
-    margin: 25px 0;
-    padding: 25px;
-  background-color: #fff;
-}
-.content > p table td, .content > div table td {
-  padding: 5px;
-}
-.content > p table td:first-child, .content > div table td:first-child {
-  font-weight: bold;
-  color: #4a536e;
-  padding-right: 15px;
-}
-.content > div p {
-  padding: 5px;
-  margin: 0 0 10px 0;
-}
+
+.tiledBackground {
+    background-image: url(/static/images/car_background.jpg);
+    background-size: 1080px;
+    width: auto;
+    height: auto;
+    border: 2px solid;
+    color: pink;
+  }

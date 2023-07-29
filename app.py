@@ -32,6 +32,11 @@ def getCursor():
 def default():
     return render_template("default.html")
 
+#http://locoalhost:5000/admin/ -- this is the admin page.
+@app.route("/admin/")
+def admin():
+    return render_template("admin.html")
+
 # http://localhost:5000/login/ - this will be the login page, we need to use both GET and POST requests
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
