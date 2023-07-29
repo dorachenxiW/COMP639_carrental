@@ -14,10 +14,10 @@ create table car (
 carid INT NOT NULL auto_increment,
 numberplate varchar(100),
 model varchar(255),
-colour varchar(60),
+seatingcapacity int,
 year int,
 status varchar(100),
-rentalfee decimal(8,2),
+rentalperday decimal(8,2),
 primary key (carid)
 );
 
@@ -52,9 +52,9 @@ insert into user values
 (3, 'dora','$2b$12$uEwmPw93iuZVKVlIk/vzJ.SM5rgDqWuDsXy0O2BzSThTo8i09VUxW', 'dora@carrental.com','admin');
 
 insert into car values
-(1, 'ABC111', 'Toyota Prius','sliver','2021', 'rent out', 50.05),
-(2, 'ABC222', 'Ford Focus','red', '2023','in garage', 68.88),
-(3, 'ABC333', 'Mazda CX-60','black','2022','in garage',88.88);
+(1, 'ABC111', 'Toyota Prius','5','2021', 'rent out', 50.05),
+(2, 'ABC222', 'Ford Focus','5', '2023','in garage', 68.88),
+(3, 'ABC333', 'Mazda CX-60','5','2022','in garage',88.88);
 
 
 
