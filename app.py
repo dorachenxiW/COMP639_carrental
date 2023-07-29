@@ -27,9 +27,10 @@ def getCursor():
     dbconn = connection.cursor()
     return dbconn
 
+#http://localhost:5000/ - this is the default page. This page tests that the web app is working on its default route.  
 @app.route("/")
-def hometest():
-    return render_template("home1.html")
+def default():
+    return render_template("default.html")
 
 # http://localhost:5000/login/ - this will be the login page, we need to use both GET and POST requests
 @app.route('/login/', methods=['GET', 'POST'])
@@ -48,7 +49,7 @@ def login():
         account = connection.fetchone()
         print(account)
         if account is not None:
-            password = account[4]
+            password = account[2]
             if bcrypt.checkpw(user_password.encode('utf-8'),password.encode('utf-8')):
             # If account exists in accounts table in out database
             # Create session data, we can access this data in other routes
