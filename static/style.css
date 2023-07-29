@@ -114,12 +114,46 @@ body {
 .navtop div a:hover {
     color: #eaebed
 }
-
-.tiledBackground {
-    background-image: url(/static/images/car_background.jpg);
-    background-size: 1080px;
-    width: auto;
-    height: auto;
-    border: 2px solid;
-    color: pink;
-  }
+.navb div a {
+    padding: 0 20px;
+    text-decoration: none;
+    color: #141415;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+}
+.navb div a i {
+    padding: 2px 8px 0 0;
+}
+.navb div a:hover {
+    color: #eaebed
+}
+.content {
+    width: 1000px;
+    margin: 0 auto;
+}
+.content h2 {
+    margin: 0;
+    padding: 25px 0;
+    font-size: 22px;
+    border-bottom: 1px solid #e0e0e3;
+    color: #4a536e;
+}
+.content > p, .content > div {
+    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);
+    margin: 25px 0;
+    padding: 25px;
+  background-color: #fff;
+}
+.content > p table td, .content > div table td {
+  padding: 5px;
+}
+.content > p table td:first-child, .content > div table td:first-child {
+  font-weight: bold;
+  color: #4a536e;
+  padding-right: 15px;
+}
+.content > div p {
+  padding: 5px;
+  margin: 0 0 10px 0;
+}

@@ -27,7 +27,7 @@ def getCursor():
     dbconn = connection.cursor()
     return dbconn
 
-#http://localhost:5000/ - this is the default page. This page tests that the web app is working on its default route.  
+#http://localhost:5000/ - this is the default page. From this page, user can choose to log in or register. Admin button will be directed to the login page as well.  
 @app.route("/")
 def default():
     return render_template("default.html")
