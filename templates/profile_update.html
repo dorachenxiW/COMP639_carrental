@@ -1,0 +1,45 @@
+{% extends 'layout.html' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<h2>Update My Profile</h2>
+<div>
+   <form action="/profile/edit" method="POST">
+    <table>
+        <tr>
+            <td>Username:</td>
+            <td><input type="text" name="username" value="{{account[1]}}"></td>
+        </tr>
+        <tr>
+            <td>First Name:</td>
+            <td><input type="text" name="firstname" value="{{account[7]}}"></td>
+        </tr>
+        <tr>
+            <td>Last Name:</td>
+            <td><input type="text" name="lastname" value="{{account[8]}}"></td>
+        </tr>
+        <tr>
+            <td>Address:</td>
+            <td><input type="text" name="address" value="{{account[9]}}"></td>
+        </tr>
+        <tr>
+            <td>Phone:</td>
+            <td><input type="text" name="phone" value="{{account[10]}}"></td>
+        </tr>
+        <tr>
+            <td>Password:</td>
+            <td><input type="text" name="password" value="{{account[2]}}"></td>
+        </tr>
+        <tr>
+            <td>Email:</td>
+            <td><input type="text" name="email" value="{{account[3]}}"></td>
+        </tr>
+    </table>
+    <input type="submit">
+   </form>
+  
+  
+   
+</div>
+{% endblock %}
