@@ -35,7 +35,9 @@ def default():
 #http://locoalhost:5000/admin/ -- this is the admin page.
 @app.route("/admin/")
 def admin():
-    return render_template('admin.html')
+    if 'loggedin' in session:
+        return render_template('admin.html')
+    return redirect(url_for('login'))
 
 # http://localhost:5000/login/ - this will be the login page, we need to use both GET and POST requests
 @app.route('/login/', methods=['GET', 'POST'])
@@ -60,9 +62,12 @@ def login():
                 session['loggedin'] = True
                 session['id'] = account[0]
                 session['username'] = account[1]
-                #redirect to admin page if role == "admin"
+                # redirect to admin page if role == "admin"
                 if account[4] == 'admin':
                     return redirect(url_for('admin'))
+                # redirect to staff page if role == "staff"
+                elif account[4] == 'staff':
+                    return redirect(url_for('staff'))
                 # Redirect to home page
                 return redirect(url_for('home'))
             else:
@@ -189,7 +194,6 @@ def updateinfo():
 def editinfo():
     if 'loggedin' in session:
         # Get the updated info from the form
-        
         username=request.form.get('username')
         #print(username)
         firstname=request.form.get('firstname')
@@ -198,11 +202,23 @@ def editinfo():
         phone=request.form.get('phone')
         password=request.form.get('password')
         email=request.form.get('email')
+        #Hash the password
         hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         connection = getCursor()
+        #Update the db (user table and customer table) with the new information that be filled through the form 
         connection.execute('UPDATE user SET username=%s, password=%s, email=%s WHERE userid=%s;', (username, hashed, email, session['id'],))
-        connection.execute('UPDATE customer SET userid=%s, firstname=%s, lastname=%s, address=%s, phone=%s;', (session['id'], firstname, lastname, address, phone,))
+        connection.execute('UPDATE customer SET firstname=%s, lastname=%s, address=%s, phone=%s WHERE userid=%s;', (firstname, lastname, address, phone, session['id'], ))
         return redirect(url_for('profile'))
     return redirect(url_for('login'))
     
-    
+# staff page 
+@app.route('/staff')
+def staff():
+    if 'loggedin' in session:
+        # connect to db to get back the account info
+        connection=getCursor()
+        sql='SELECT * FROM user LEFT JOIN staff ON user.userid = staff.userid WHERE user.userid = %s;'
+        connection.execute(sql, (session['id'],))
+        account=connection.fetchone()
+        return render_template('staff.html', username=session['username'], account = account)
+    return redirect(url_for('login'))
