@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+
+    <h2>Manage Cars</h2>
+   
+    
+    <div class="content">
+      <table  class="table table-striped table-hover">
+       <tr><th>Image</th><th>Number Plate</th><th>Model</th><th>Seating Capacity</th><th>Year</th><th>Status</th><th>Rental Per Day ($/day)</th></tr>
+        {% for car in carlist%}
+        <tr><td>url_for car images</td><td>{{car[1]}}</td><td>{{car[2]}}</td><td>{{car[3]}}</td><td>{{car[4]}}</td><td>{{car[5]}}</td><td>{{car[6]}}</td></tr>
+        {% endfor %}
+    </table>
+    </div>
+    
+
+
+
+{% endblock %}

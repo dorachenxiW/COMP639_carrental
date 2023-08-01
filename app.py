@@ -220,5 +220,29 @@ def staff():
         sql='SELECT * FROM user LEFT JOIN staff ON user.userid = staff.userid WHERE user.userid = %s;'
         connection.execute(sql, (session['id'],))
         account=connection.fetchone()
-        return render_template('staff.html', username=session['username'], account = account)
+        return render_template('staff.html', username=session['username'])
+    return redirect(url_for('login'))
+
+# view customers from the staff page 
+@app.route('/staff/viewcustomers')
+def viewcustomers():
+    if 'loggedin' in session:
+        # connect to db to get customer info
+        connection=getCursor()
+        sql='SELECT * FROM user LEFT JOIN customer on user.userid = customer.userid;'
+        connection.execute(sql)
+        customerList=connection.fetchall()
+        return render_template('viewcustomers.html', username=session['username'], customerlist=customerList)
+    return redirect(url_for('login'))
+# view and manage cars from the staff page
+
+@app.route('/staff/managecars')
+def managecars():
+    if 'loggedin' in session:
+        #connect to db to get car info
+        connection = getCursor()
+        sql='SELECT * FROM car;'
+        connection.execute(sql)
+        carList=connection.fetchall()
+        return render_template('managecars.html', username=session['username'], carlist=carList)
     return redirect(url_for('login'))

@@ -9,9 +9,10 @@
     <p>Welcome back, {{ username }}!</p>
     
     <div class="content">
-    
-    <h3 align="center">Customers</h3>
-    <h3 align="center">Cars</h3>
+        <ul align="center">
+            <li><a href="{{ url_for('viewcustomers') }}">View Customers</a></li>
+            <li><a href="{{ url_for('managecars') }}">Manage Cars</a></li>
+        </ul> 
     </div>
     
 
