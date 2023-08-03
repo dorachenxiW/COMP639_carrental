@@ -3,9 +3,9 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
-<h2>Update My Profile</h2>
+<h2>Edit My Profile</h2>
 <div>
-   <form action="/profile/edit" method="POST">
+   <form action="/profile/update" method="POST">
     <table>
         <tr>
             <td>Username:</td>
@@ -27,11 +27,6 @@
             <td>Phone:</td>
             <td><input type="text" name="phone" value="{{account[10]}}"></td>
         </tr>
-        <!-- <tr>
-            <td>Password:</td>
-            <td><input type="text" name="password" value="{{account[2]}}" readonly></td>
-         
-        </tr> -->
         <tr>
             <td>Email:</td>
             <td><input type="text" name="email" value="{{account[3]}}"></td>

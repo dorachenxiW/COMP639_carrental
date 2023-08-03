@@ -189,8 +189,8 @@ def profile():
     return redirect(url_for('login'))
 
 
-@app.route('/profile/update', methods=['GET','POST'])
-def updateinfo():
+@app.route('/profile/edit', methods=['GET','POST'])
+def editprofile():
     if 'loggedin' in session:
         connection = getCursor()
         sql='SELECT * FROM user WHERE userid = %s;'
@@ -200,17 +200,17 @@ def updateinfo():
             sql1='SELECT * FROM user LEFT JOIN customer ON user.userid = customer.userid WHERE user.userid = %s;'
             connection.execute(sql1, (session['id'],))
             account1=connection.fetchone()
-            return render_template('profile_update.html', account=account1)
+            return render_template('editprofile.html', account=account1)
         #Get the info from the table user join table customer
         elif account[4] == 'staff':
             sql2='SELECT * FROM user LEFT JOIN staff ON user.userid = staff.userid WHERE user.userid = %s;'
             connection.execute(sql2, (session['id'],))
             account2=connection.fetchone()
-            return render_template('profile_update.html', account=account2)
+            return render_template('editprofile.html', account=account2)
     return redirect(url_for('login'))
 
-@app.route('/profile/edit', methods=['GET','POST'])
-def editinfo():
+@app.route('/profile/update', methods=['GET','POST'])
+def updateprofile():
     if 'loggedin' in session:
         # Get the updated info from the form
         username=request.form.get('username')
@@ -219,10 +219,8 @@ def editinfo():
         lastname=request.form.get('lastname')
         address=request.form.get('address')
         phone=request.form.get('phone')
-        #password=request.form.get('password')
         email=request.form.get('email')
-        #Hash the password
-        #hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        
         connection = getCursor()
         # Update the user table now 
         connection.execute('UPDATE user SET username=%s, email=%s WHERE userid=%s;', (username, email, session['id'],))
@@ -238,7 +236,35 @@ def editinfo():
             # update the staff table now
             return redirect(url_for('profile'))
     return redirect(url_for('login'))
-    
+
+# change password for users
+@app.route('/profile/changepassword', methods=['POST'])
+def changepassword():
+    if 'loggedin' in session:
+        connection=getCursor()
+        sql='SELECT * FROM user WHERE userid = %s;'
+        connection.execute(sql, (session['id'],))
+        account=connection.fetchone()
+        if account[4]=='customer':
+            return render_template('changepassword_customer.html')
+        elif account[4]=='staff':
+            return render_template('changepassword_staff.html')
+    return redirect(url_for('login'))
+
+@app.route('/profile/updatepassword', methods=['GET','POST'])
+def updatepassword():
+    if 'loggedin' in session:
+        # Get the new password from the form
+        newpassword=request.form.get('newpassword')
+        # Bcrypt the password
+        hashed_newpassword = bcrypt.hashpw(newpassword.encode('utf-8'), bcrypt.gensalt())
+        # Connect to db and update the user table
+        connection = getCursor()
+        connection.execute('UPDATE user SET password=%s WHERE userid=%s;', (hashed_newpassword, session['id'],))
+        return redirect(url_for('profile'))
+    return redirect(url_for('login'))
+
+
 # staff page 
 @app.route('/staff')
 def staff():
