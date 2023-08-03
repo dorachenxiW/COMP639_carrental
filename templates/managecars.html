@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 
-{% block title %}Home{% endblock %}
+{% block title %}staff{% endblock %}
 
 {% block content %}
 
@@ -9,6 +9,7 @@
    
     
     <div class="content">
+        <h3 align="center">List of Cars</h3>
       <table  class="table table-striped table-hover">
        <tr><th>Image</th><th>Number Plate</th><th>Model</th><th>Seating Capacity</th><th>Year</th><th>Status</th><th>Rental Per Day ($/day)</th></tr>
         {% for car in carlist%}

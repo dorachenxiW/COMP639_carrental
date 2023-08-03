@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 
-{% block title %}Home{% endblock %}
+{% block title %}staff{% endblock %}
 
 {% block content %}
 
@@ -8,7 +8,7 @@
     <h2>View Customers</h2>
     
     <div class="content">
-        <h3 align="center">Customer List</h3>
+        <h3 align="center">List of Customers</h3>
       <table  class="table table-striped table-hover">
         <tr><th>User Name</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Phone</th><th>Password</th></tr>
         {% for customer in customerlist %}

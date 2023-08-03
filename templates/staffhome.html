@@ -1,0 +1,15 @@
+{% extends 'layout_staff.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h2>Staff Dashboard</h2>
+            <p>Welcome back, {{ username }}!</p>
+    
+            <div class="content">
+                <ul align="center">
+                    <li><a href="{{ url_for('viewcustomers') }}">View Customers</a></li>
+                    <li><a href="{{ url_for('managecars') }}">Manage Cars</a></li>
+                </ul> 
+            </div>
+{% endblock %}            
