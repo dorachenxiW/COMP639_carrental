@@ -402,8 +402,85 @@ def admin():
 @app.route('/admin/managecustomers')
 def managecustomers():
     if 'loggedin' in session:
-        return render_template('managecustomers.html', username=session['username'])
+        connection=getCursor()
+        sql_customer='SELECT * FROM user LEFT JOIN customer ON user.userid = customer.userid WHERE role="customer";'
+        connection.execute(sql_customer)
+        customerList=connection.fetchall()
+        return render_template('managecustomers.html',customerlist=customerList)
     return redirect(url_for('login'))
+
+@app.route('/admin/managecustomers/add', methods=['POST'])
+def addcustomer():
+    if 'loggedin' in session:
+        return render_template('addcustomer.html')
+    return redirect(url_for('login'))
+
+@app.route('/admin/managecustomers/add/update', methods=['GET','POST'])
+def updatecustomer():
+    if 'loggedin' in session:
+        username=request.form.get('username')
+        password=request.form.get('password')
+        hashedpd= bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        email=request.form.get('email')
+        firstname=request.form.get('firstname')
+        lastname=request.form.get('lastname')
+        phone=request.form.get('phone')
+        address=request.form.get('address')
+
+        connection=getCursor()
+        sql1='INSERT INTO user (username, password, email, role) VALUES (%s, %s, %s, %s);'
+        connection.execute(sql1,(username, hashedpd, email,'customer',))
+        connection.execute('SELECT * FROM user WHERE username = %s', (username,))
+        newuser=connection.fetchall()
+        newuserid=newuser[0][0]
+        sql2='INSERT INTO customer (userid, firstname, lastname, phone, address) VALUES (%s, %s, %s, %s, %s);'
+        connection.execute(sql2,(newuserid, firstname, lastname, phone, address,))
+        return redirect(url_for('managecustomers'))
+    return redirect(url_for('login'))
+
+@app.route('/admin/managecustomers/edit', methods=['GET','POST'])
+def editcustomer():
+    if 'loggedin' in session:
+        # Get userid from the hidden input within the form to decide which customer is edited 
+        userid=request.form.get('userid')
+        # Connect to db to get the customer info with the userid above
+        connection=getCursor()
+        sql_customer='SELECT * FROM user LEFT JOIN customer ON user.userid = customer.userid WHERE user.userid=%s;'
+        connection.execute(sql_customer, (userid,))
+        customer=connection.fetchone()
+        return render_template('editcustomer.html', customer=customer)
+    return redirect(url_for('login'))
+
+@app.route('/staff/managecustomers/edit/update', methods=['GET','POST'])
+def update_editcustomer():
+    if 'loggedin' in session:
+        userid=request.form.get('userid')
+        username=request.form.get('username')
+        firstname=request.form.get('firstname')
+        lastname=request.form.get('lastname')
+        email=request.form.get('email')
+        phone=request.form.get('phone')
+        address=request.form.get('address')
+        connection=getCursor()
+        sql_user='UPDATE user SET username=%s, email=%s WHERE userid=%s;'
+        sql_customer='UPDATE customer SET firstname=%s, lastname=%s,phone=%s, address=%s WHERE userid=%s;'
+        connection.execute(sql_user, (username,email, userid,))
+        connection.execute(sql_customer, (firstname, lastname, phone, address, userid,))
+        return redirect(url_for('managecustomers'))
+    return redirect(url_for('login'))
+
+@app.route('/admin/managecustomers/delete', methods=['GET','POST'])
+def deletecustomer():
+    if 'loggedin' in session:
+        userid=request.form.get('userid')
+        connection=getCursor()
+        sql_user='DELETE FROM user WHERE userid=%s'
+        sql_customer='DELETE FROM customer WHERE userid=%s;'
+        connection.execute(sql_customer,(userid,))
+        connection.execute(sql_user,(userid,))
+        return redirect(url_for('managecustomers'))
+    return redirect(url_for('login'))
+
 
 @app.route('/admin/managestaff', methods=['GET','POST'])
 def managestaff():
@@ -414,6 +491,7 @@ def managestaff():
         staffList=connection.fetchall()
         return render_template('managestaff.html', stafflist=staffList)
     return redirect(url_for('login'))
+
 
 # Add staff from admin page 
 @app.route('/admin/managestaff/add', methods=['POST'])
@@ -437,19 +515,55 @@ def updatestaff():
         connection=getCursor()
         sql1='INSERT INTO user (username, password, email, role) VALUES (%s, %s, %s, %s);'
         connection.execute(sql1,(username, hashedpd, email, role,))
-        #conncetion=getCursor()
-        sql_user='SELECT userid from user WHERE username="%s";'
-        connection.execute(sql_user, (username,))
+        connection.execute('SELECT * FROM user WHERE username = %s', (username,))
         newuser=connection.fetchall()
-        print(newuser)
-        sql2='INSERT INTO staff (firstname, lastname, phone, address) VALUES (%s, %s, %s, %s);'
-        connection.execute(sql2,(firstname, lastname, phone, address,))
+        newuserid=newuser[0][0]
+        sql2='INSERT INTO staff (userid, firstname, lastname, phone, address) VALUES (%s, %s, %s, %s, %s);'
+        connection.execute(sql2,(newuserid, firstname, lastname, phone, address,))
         return redirect(url_for('managestaff'))
     return redirect(url_for('login'))
 
 @app.route('/admin/managestaff/edit', methods=['GET','POST'])
 def editstaff():
     if 'loggedin' in session:
-        pass
+        # Get userid from the hidden input within the form to decide which car is edited 
+        userid=request.form.get('userid')
+        # Connect to db to get the car info with the userid above
+        connection=getCursor()
+        sql_staff='SELECT * FROM user LEFT JOIN staff ON user.userid = staff.userid WHERE user.userid=%s;'
+        connection.execute(sql_staff, (userid,))
+        staff=connection.fetchone()
+        return render_template('editstaff.html', staff=staff)
+    return redirect(url_for('login'))
 
+@app.route('/staff/managestaff/edit/update', methods=['GET','POST'])
+def update_editstaff():
+    if 'loggedin' in session:
+        userid=request.form.get('userid')
+        username=request.form.get('username')
+        firstname=request.form.get('firstname')
+        lastname=request.form.get('lastname')
+        email=request.form.get('email')
+        phone=request.form.get('phone')
+        address=request.form.get('address')
+        connection=getCursor()
+        sql_user='UPDATE user SET username=%s, email=%s WHERE userid=%s;'
+        sql_staff='UPDATE staff SET firstname=%s, lastname=%s,phone=%s, address=%s WHERE userid=%s;'
+        connection.execute(sql_user, (username,email, userid,))
+        connection.execute(sql_staff, (firstname, lastname, phone, address, userid,))
+        return redirect(url_for('managestaff'))
+    return redirect(url_for('login'))
+
+# Delete staff from the admin managestaff page 
+@app.route('/admin/managestaff/delete', methods=['GET','POST'])
+def deletestaff():
+    if 'loggedin' in session:
+        userid=request.form.get('userid')
+        connection=getCursor()
+        sql_user='DELETE FROM user WHERE userid=%s'
+        sql_staff='DELETE FROM staff WHERE userid=%s;'
+        connection.execute(sql_staff,(userid,))
+        connection.execute(sql_user,(userid,))
+        return redirect(url_for('managestaff'))
+    return redirect(url_for('login'))
     

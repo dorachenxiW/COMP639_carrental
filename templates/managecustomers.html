@@ -1,0 +1,43 @@
+{% extends 'layout_admin.html' %}
+
+{% block title %}Manage Customer Admin{% endblock %}
+
+{% block content %}
+
+
+    <h2>Manage Customers</h2>
+   
+    
+    <div class="content">
+        <h3 align="center">List of Customers</h3> 
+            
+        <form action="/admin/managecustomers/add" method="POST" align="center">
+            <button type="submit">Add Customer</button>
+        </form>
+          
+        <table>
+        <tr><th>User Name</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Phone</th><th>Address</th><th>Role</th></tr>
+        {% for customer in customerlist%}
+        <tr>
+            <td>{{customer[1]}}</td><td>{{customer[7]}}</td><td>{{customer[8]}}</td><td>{{customer[3]}}</td><td>{{customer[10]}}</td><td>{{customer[9]}}</td><td>{{customer[4]}}</td>
+            <td>
+                <form action="/admin/managecustomers/edit" method="POST">
+                    <input type="hidden" name="userid" value="{{customer[0]}}">
+                    <button type="submit" class="btn btn-link">Edit</button>
+                </form>
+            </td>
+            <td>
+                <form action="/admin/managecustomers/delete" method="POST">
+                    <input type="hidden" name="userid" value="{{customer[0]}}">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+       </table>
+    </div>
+    
+
+
+
+{% endblock %}

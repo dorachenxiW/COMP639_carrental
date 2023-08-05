@@ -1,12 +1,12 @@
 {% extends 'layout_admin.html' %}
 
-{% block title %}Add Staff{% endblock %}
+{% block title %}Add Customer{% endblock %}
 
 {% block content %}
-    <h2>Add a New Staff</h2>
+    <h2>Add a New Customer</h2>
    
     <div class="content">
-    <form action='/admin/managestaff/add/update', method="POST">
+    <form action='/admin/managecustomers/add/update', method="POST">
       <table>
         <tr>
             <td>Username:</td>
@@ -27,15 +27,6 @@
         <tr>
             <td>Email:</td>
             <td><input type="text" name="email" required></td>
-        </tr>
-        <tr>
-            <td>Role:</td>
-            <td>
-                <select name="role">
-                    <option value="staff">Staff</option>
-                    <option value="admin">Admin</option>
-                </select>
-            </td>
         </tr>
         <tr>
             <td>Phone:</td>

@@ -22,13 +22,13 @@
             <td>{{staff[1]}}</td><td>{{staff[7]}}</td><td>{{staff[8]}}</td><td>{{staff[3]}}</td><td>{{staff[10]}}</td><td>{{staff[9]}}</td><td>{{staff[4]}}</td>
             <td>
                 <form action="/admin/managestaff/edit" method="POST">
-                    <input type="hidden" name="carid" value="{{staff[0]}}">
+                    <input type="hidden" name="userid" value="{{staff[0]}}">
                     <button type="submit" class="btn btn-link">Edit</button>
                 </form>
             </td>
             <td>
                 <form action="/admin/managestaff/delete" method="POST">
-                    <input type="hidden" name="carid" value="{{staff[0]}}">
+                    <input type="hidden" name="userid" value="{{staff[0]}}">
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
             </td>

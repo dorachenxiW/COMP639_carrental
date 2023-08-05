@@ -1,0 +1,39 @@
+{% extends 'layout_admin.html' %}
+
+{% block title %}Admin Edit Customer{% endblock %}
+
+{% block content %}
+<h2>Edit Customer</h2>
+<div>
+   <form action="/staff/managecustomers/edit/update" method="POST">
+    <table>
+        <tr>
+            <td>Username:</td>
+            <td><input type="text" name="username" value="{{customer[1]}}"></td>
+        </tr>
+        <tr>
+            <td>First Name:</td>
+            <td><input type="text" name="firstname" value="{{customer[7]}}"></td>
+        </tr>
+        <tr>
+            <td>Last Name:</td>
+            <td><input type="text" name="lastname" value="{{customer[8]}}"></td>
+        </tr>
+        <tr>
+            <td>Email:</td>
+            <td><input type="text" name="email" value="{{customer[3]}}"></td>
+        </tr>
+        <tr>
+            <td>Phone</td>
+            <td><input type="text" name="phone" value="{{customer[10]}}"></td>
+        </tr>
+        <tr>
+            <td>Address:</td>
+            <td><input type="text" name="address" value="{{customer[9]}}"></td>
+        </tr>
+    </table>
+    <input type="hidden" name="userid" value="{{customer[0]}}">
+    <input type="submit">
+   </form>
+</div>
+{% endblock %}

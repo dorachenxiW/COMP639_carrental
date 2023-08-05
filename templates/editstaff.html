@@ -1,0 +1,39 @@
+{% extends 'layout_admin.html' %}
+
+{% block title %}Admin Edit Staff{% endblock %}
+
+{% block content %}
+<h2>Edit Staff</h2>
+<div>
+   <form action="/staff/managestaff/edit/update" method="POST">
+    <table>
+        <tr>
+            <td>Username:</td>
+            <td><input type="text" name="username" value="{{staff[1]}}"></td>
+        </tr>
+        <tr>
+            <td>First Name:</td>
+            <td><input type="text" name="firstname" value="{{staff[7]}}"></td>
+        </tr>
+        <tr>
+            <td>Last Name:</td>
+            <td><input type="text" name="lastname" value="{{staff[8]}}"></td>
+        </tr>
+        <tr>
+            <td>Email:</td>
+            <td><input type="text" name="email" value="{{staff[3]}}"></td>
+        </tr>
+        <tr>
+            <td>Phone</td>
+            <td><input type="text" name="phone" value="{{staff[10]}}"></td>
+        </tr>
+        <tr>
+            <td>Address:</td>
+            <td><input type="text" name="address" value="{{staff[9]}}"></td>
+        </tr>
+    </table>
+    <input type="hidden" name="userid" value="{{staff[0]}}">
+    <input type="submit">
+   </form>
+</div>
+{% endblock %}
