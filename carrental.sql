@@ -39,6 +39,7 @@ staffid INT NOT NULL auto_increment,
 userid int,
 firstname varchar(100),
 lastname varchar(100),
+address varchar(255),
 phone varchar(100),
 carid int,
 primary key (staffid),
@@ -50,6 +51,15 @@ insert into user values
 (1, 'james', '$2b$12$/RqUO/ndFG8gJ8HV3Pf39enYNFUPlq/xz8R.R/mKW2dHPbqZjqpGm', 'james@carrental.com','customer'),
 (2, 'michael', '$2b$12$qWhbQbAVLU/gDq2s/sBIS.0kllMCof90.UNM6elLrvsp9Hof1UyGq', 'michael@carrental.com','staff'),
 (3, 'dora','$2b$12$uEwmPw93iuZVKVlIk/vzJ.SM5rgDqWuDsXy0O2BzSThTo8i09VUxW', 'dora@carrental.com','admin');
+
+insert into customer values
+(1, 1, null, null, null,null,null );
+
+insert into staff values
+(1, 2, null, null, null,null,null),
+(2, 3, null, null, null, null, null);
+
+
 
 insert into car values
 (1, 'ABC111', 'Toyota Prius','5','2021', 'rent out', 50.05),
