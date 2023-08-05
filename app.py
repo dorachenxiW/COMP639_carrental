@@ -32,13 +32,6 @@ def getCursor():
 def default():
     return render_template('default.html')
 
-#http://locoalhost:5000/admin/ -- this is the admin page.
-@app.route("/admin/")
-def admin():
-    if 'loggedin' in session:
-        return render_template('admin.html')
-    return redirect(url_for('login'))
-
 # http://localhost:5000/login/ - this will be the login page, we need to use both GET and POST requests
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
@@ -185,6 +178,11 @@ def profile():
             connection.execute(sql2, (session['id'],))
             account2=connection.fetchone()
             return render_template('profile_staff.html', account=account2)
+        elif account[4] =='admin':
+            sql2='SELECT * FROM user LEFT JOIN staff ON user.userid = staff.userid WHERE user.userid = %s;'
+            connection.execute(sql2, (session['id'],))
+            account2=connection.fetchone()
+            return render_template('profile_admin.html', account=account2)
     # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
@@ -206,10 +204,15 @@ def editprofile():
             sql2='SELECT * FROM user LEFT JOIN staff ON user.userid = staff.userid WHERE user.userid = %s;'
             connection.execute(sql2, (session['id'],))
             account2=connection.fetchone()
-            return render_template('editprofile.html', account=account2)
+            return render_template('editprofile_staff.html', account=account2)
+        elif account[4] == 'admin':
+            sql2='SELECT * FROM user LEFT JOIN staff ON user.userid = staff.userid WHERE user.userid = %s;'
+            connection.execute(sql2, (session['id'],))
+            account2=connection.fetchone()
+            return render_template('editprofile_admin.html', account=account2)
     return redirect(url_for('login'))
 
-@app.route('/profile/update', methods=['GET','POST'])
+@app.route('/profile/edit/update', methods=['GET','POST'])
 def updateprofile():
     if 'loggedin' in session:
         # Get the updated info from the form
@@ -220,7 +223,6 @@ def updateprofile():
         address=request.form.get('address')
         phone=request.form.get('phone')
         email=request.form.get('email')
-        
         connection = getCursor()
         # Update the user table now 
         connection.execute('UPDATE user SET username=%s, email=%s WHERE userid=%s;', (username, email, session['id'],))
@@ -232,7 +234,8 @@ def updateprofile():
             # Update the customer table now 
             connection.execute('UPDATE customer SET firstname=%s, lastname=%s, address=%s, phone=%s WHERE userid=%s;', (firstname, lastname, address, phone, session['id'], ))
             return redirect(url_for('profile'))
-        elif account[4]=='staff':
+        elif account[4]=='staff' or account[4] == 'admin':
+            connection.execute('UPDATE staff SET firstname=%s, lastname=%s, address=%s, phone=%s WHERE userid=%s;', (firstname, lastname, address, phone, session['id'], ))
             # update the staff table now
             return redirect(url_for('profile'))
     return redirect(url_for('login'))
@@ -249,9 +252,11 @@ def changepassword():
             return render_template('changepassword_customer.html')
         elif account[4]=='staff':
             return render_template('changepassword_staff.html')
+        elif account[4] == 'admin':
+            return render_template('changepassword_admin.html')
     return redirect(url_for('login'))
 
-@app.route('/profile/updatepassword', methods=['GET','POST'])
+@app.route('/profile/changepassword/update', methods=['GET','POST'])
 def updatepassword():
     if 'loggedin' in session:
         # Get the new password from the form
@@ -263,7 +268,6 @@ def updatepassword():
         connection.execute('UPDATE user SET password=%s WHERE userid=%s;', (hashed_newpassword, session['id'],))
         return redirect(url_for('profile'))
     return redirect(url_for('login'))
-
 
 # staff page 
 @app.route('/staff')
@@ -283,20 +287,169 @@ def viewcustomers():
     if 'loggedin' in session:
         # connect to db to get customer info
         connection=getCursor()
-        sql='SELECT * FROM user LEFT JOIN customer on user.userid = customer.userid;'
+        sql='SELECT * FROM user LEFT JOIN customer on user.userid = customer.userid WHERE role = "customer";'
         connection.execute(sql)
         customerList=connection.fetchall()
         return render_template('viewcustomers.html', username=session['username'], customerlist=customerList)
     return redirect(url_for('login'))
-# view and manage cars from the staff page
 
+# view and manage cars from the staff page
 @app.route('/staff/managecars')
 def managecars():
     if 'loggedin' in session:
         #connect to db to get car info
         connection = getCursor()
-        sql='SELECT * FROM car;'
-        connection.execute(sql)
+        sql_car='SELECT * FROM car;'
+        connection.execute(sql_car)
         carList=connection.fetchall()
-        return render_template('managecars.html', username=session['username'], carlist=carList)
+        # Get account info to direct different user to different template
+        sql_user='SELECT * FROM user WHERE userid = %s;'
+        connection.execute(sql_user, (session['id'],))
+        account=connection.fetchone()
+        if account[4]=='staff':
+            return render_template('managecars.html', username=session['username'], carlist=carList)
+        elif account[4]=='admin':
+            return render_template('managecars_admin.html', username=session['username'], carlist=carList)
     return redirect(url_for('login'))
+
+# Add car from the staff car management page or admin page
+@app.route('/staff/managecars/add', methods=['POST'])
+def addcar():
+    if 'loggedin' in session:
+        connection = getCursor()
+        sql_user='SELECT * FROM user WHERE userid = %s;'
+        connection.execute(sql_user, (session['id'],))
+        account=connection.fetchone()
+        if account[4]=='staff':
+            return render_template('addcar.html')
+        elif account[4]=='admin':
+            return render_template('addcar_admin.html')
+    return redirect(url_for('login'))
+
+@app.route('/staff/managecars/add/update', methods=['GET','POST'])
+def update_addcar():
+    if 'loggedin' in session:
+        # Get the car details from the form
+        numberplate=request.form.get('numberplate')
+        model=request.form.get('model')
+        seatingcapacity=request.form.get('seatingcapacity')
+        year=request.form.get('year')
+        status=request.form.get('status')
+        rentalperday=request.form.get('rentalperday')
+        # Connect to db and update the info above into the db
+        connection=getCursor()
+        sql='INSERT INTO car (numberplate, model, seatingcapacity, year, status,rentalperday) VALUES (%s, %s, %s, %s, %s, %s);'
+        connection.execute(sql, (numberplate, model, seatingcapacity, year, status, rentalperday,))
+        return redirect(url_for('managecars'))
+    return redirect(url_for('login'))
+
+# Update car info from the staff car management page 
+@app.route('/staff/managecars/edit', methods=['GET','POST'])
+def editcar():
+    if 'loggedin' in session:
+        # Get carid from the hidden input within the form to decide which car is edited 
+        carid=request.form.get('carid')
+        # Connect to db to get the car info with the carid above
+        connection=getCursor()
+        sql='SELECT * FROM car WHERE carid=%s;'
+        connection.execute(sql, (carid,))
+        car=connection.fetchone()
+        sql_user='SELECT * FROM user WHERE userid = %s;'
+        connection.execute(sql_user, (session['id'],))
+        account=connection.fetchone()
+        if account[4]=='staff':
+            return render_template('editcar.html', car = car)
+        elif account[4]=='admin':
+            return render_template('editcar_admin.html', car = car)
+    return redirect(url_for('login'))
+
+@app.route('/staff/managecars/edit/update', methods=['GET','POST'])
+def update_editcar():
+    if 'loggedin' in session:
+        carid=request.form.get('carid')
+        numberplate=request.form.get('numberplate')
+        model=request.form.get('model')
+        seatingcapacity=request.form.get('seatingcapacity')
+        year=request.form.get('year')
+        status=request.form.get('status')
+        rentalperday=request.form.get('rentalperday')
+        connection=getCursor()
+        sql='UPDATE car SET numberplate=%s, model=%s, seatingcapacity=%s, year=%s, status=%s,rentalperday=%s WHERE carid=%s;'
+        connection.execute(sql, (numberplate, model, seatingcapacity, year, status, rentalperday, carid,))
+        return redirect(url_for('managecars'))
+    return redirect(url_for('login'))
+
+# Delete car from the staff car management page 
+@app.route('/staff/managecars/delete', methods=['GET','POST'])
+def deletecar():
+    if 'loggedin' in session:
+        #msg=''
+        carid=request.form.get('carid')
+        connection=getCursor()
+        sql='DELETE FROM car WHERE carid=%s;'
+        connection.execute(sql,(carid,))
+        #msg='You have sucessfully deleted the car!'
+        return redirect(url_for('managecars'))
+    return redirect(url_for('login'))
+
+#http://locoalhost:5000/admin/ -- this is the admin page.
+@app.route('/admin')
+def admin():
+    if 'loggedin' in session:
+        return render_template('adminhome.html', username=session['username'])
+    return redirect(url_for('login'))
+
+@app.route('/admin/managecustomers')
+def managecustomers():
+    if 'loggedin' in session:
+        return render_template('managecustomers.html', username=session['username'])
+    return redirect(url_for('login'))
+
+@app.route('/admin/managestaff', methods=['GET','POST'])
+def managestaff():
+    if 'loggedin' in session:
+        connection=getCursor()
+        sql_staff='SELECT * FROM user LEFT JOIN staff ON user.userid = staff.userid WHERE role="staff" or role="admin";'
+        connection.execute(sql_staff)
+        staffList=connection.fetchall()
+        return render_template('managestaff.html', stafflist=staffList)
+    return redirect(url_for('login'))
+
+# Add staff from admin page 
+@app.route('/admin/managestaff/add', methods=['POST'])
+def addstaff():
+    if 'loggedin' in session:
+        return render_template('addstaff.html')
+    return redirect(url_for('login'))
+
+@app.route('/admin/managestaff/add/update', methods=['GET','POST'])
+def updatestaff():
+    if 'loggedin' in session:
+        username=request.form.get('username')
+        email=request.form.get('email')
+        role=request.form.get('role')
+        firstname=request.form.get('firstname')
+        lastname=request.form.get('lastname')
+        phone=request.form.get('phone')
+        address=request.form.get('address')
+        password=request.form.get('password')
+        hashedpd= bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        connection=getCursor()
+        sql1='INSERT INTO user (username, password, email, role) VALUES (%s, %s, %s, %s);'
+        connection.execute(sql1,(username, hashedpd, email, role,))
+        #conncetion=getCursor()
+        sql_user='SELECT userid from user WHERE username="%s";'
+        connection.execute(sql_user, (username,))
+        newuser=connection.fetchall()
+        print(newuser)
+        sql2='INSERT INTO staff (firstname, lastname, phone, address) VALUES (%s, %s, %s, %s);'
+        connection.execute(sql2,(firstname, lastname, phone, address,))
+        return redirect(url_for('managestaff'))
+    return redirect(url_for('login'))
+
+@app.route('/admin/managestaff/edit', methods=['GET','POST'])
+def editstaff():
+    if 'loggedin' in session:
+        pass
+
+    

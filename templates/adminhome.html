@@ -1,0 +1,19 @@
+{% extends 'layout_admin.html' %}
+
+{% block title %}Admin Home{% endblock %}
+
+{% block content %}
+
+    <h2>Admin Dashboard</h2>
+    <p>Welcome back,{{username }}!</p>
+    
+    <div class="content">
+        <ul align="center">
+            <li><a href="{{ url_for('managecustomers')}}">Manage Customers</a></li>
+            <li><a href="{{ url_for('managestaff')}}">Manage Staff</a></li>
+            <li><a href="{{ url_for('managecars') }}">Manage Cars</a></li>
+
+        </ul> 
+    </div>
+
+{% endblock %}

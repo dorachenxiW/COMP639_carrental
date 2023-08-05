@@ -1,0 +1,47 @@
+{% extends 'layout_staff.html' %}
+
+{% block title %}staff{% endblock %}
+
+{% block content %}
+<h2>Edit Car</h2>
+<div>
+   <form action="/staff/managecars/edit/update" method="POST">
+    <table>
+        <tr>
+            <td>Number Plate:</td>
+            <td><input type="text" name="numberplate" value="{{car[1]}}"></td>
+        </tr>
+        <tr>
+            <td>Model:</td>
+            <td><input type="text" name="model" value="{{car[2]}}"></td>
+        </tr>
+        <tr>
+            <td>Seating Capacity:</td>
+            <td><input type="number" min="2" max="50" name="seatingcapacity" value="{{car[3]}}"></td>
+        </tr>
+        <tr>
+            <td>Year:</td>
+            <td><input type="number" min="1980" max="2023" name="year" value="{{car[4]}}"></td>
+        </tr>
+        <tr>
+            <td>Status:</td>
+            <td>                
+                <select name="status" id="status" value="{{car[5]}}">
+                    <option value="rent out">Rent Out</option>
+                    <option value="in garage">In Garage</option>
+                </select>    
+            </td>
+        </tr>
+        <tr>
+            <td>Rental Per Day (NZD):</td>
+            <td><input  type="number" name="rentalperday" min="0" step="any" value="{{car[6]}}"></td>
+        </tr>
+    </table>
+    <input type="hidden" name="carid" value="{{car[0]}}">
+    <input type="submit">
+   </form>
+  
+  
+   
+</div>
+{% endblock %}

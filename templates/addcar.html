@@ -1,0 +1,53 @@
+{% extends 'layout_staff.html' %}
+
+{% block title %}staff{% endblock %}
+
+{% block content %}
+    <h2>Add a New Car</h2>
+   
+    <div class="content">
+    <form action='/staff/managecars/add/update', method="POST">
+      <table>
+        <tr>
+            <td>Number Plate:</td>
+            <td><input type="text" name="numberplate" required></td>
+        </tr>
+        <tr>
+            <td>Model:</td>
+            <td><input type="text" name="model" required></td>
+        </tr>
+        <tr>
+            <td>Seating Capacity:</td>
+            <td><input type="number" min="2", max="50" name="seatingcapacity" required></td>
+        </tr>
+        <tr>
+            <td>Year:</td>
+            <td><input type="number" min="1980" max="2023" step="1" name="year" required></td>
+        </tr>
+        <tr>
+            <td>Status:</td>
+            <td>
+                <select name="status" id="status" required>
+                    <option value="rent out">Rent Out</option>
+                    <option value="in garage">In Garage</option>
+                </select>    
+            </td>
+        </tr>
+        <tr>
+            <td>Rental Per Day (NZD):</td>
+            <td><input type="number" name="rentalperday" min="0" step="any" required></td>
+
+        </tr>
+        <!-- <tr>
+            <td>Image</td>
+        </tr> -->
+        </table>
+        <button type ="submit">Add</button>
+    </form>
+       
+    </div>
+    
+
+
+
+{% endblock %}
