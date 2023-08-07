@@ -83,35 +83,41 @@ def logout():
    return redirect(url_for('login'))
 
 
- # http://localhost:5000/home - this will be the home page, only accessible for loggedin users
+# http://localhost:5000/home - this will be the home page, only accessible for loggedin users
 @app.route('/home', methods=['GET'])
 def home():
     # Check if user is loggedin
     if 'loggedin' in session:
-        # User is loggedin show them the home page
-        #connect to db
-        connection = getCursor()
-        # Get car information from db
-        sql_car = 'select * from car;'
-        connection.execute(sql_car)
-        car = connection.fetchall()
-
-        return render_template('home.html', username=session['username'], car = car)
+        return render_template('home.html', username=session['username'])
     # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
-#http://localhost:5000/home/cardetails
-@app.route('/home/cardetails', methods=['GET','POST'])
+# http://localhost:5000/home/viewcars - this page shows a list of cars that is available to choose from
+@app.route('/home/viewcars')
+def viewcars():
+    if 'loggedin' in session:
+        #connect to db
+        connection = getCursor()
+        # Get the available car information from db
+        sql_car = 'SELECT * from car WHERE status="in garage";'
+        connection.execute(sql_car)
+        carList = connection.fetchall()
+        return render_template('viewcars.html', username=session['username'], carlist=carList)
+    return redirect(url_for('login'))
+
+#http://localhost:5000/home/viewcars/cardetail
+@app.route('/home/viewcars/cardetail', methods=['GET','POST'])
 def cardetails():
     if 'loggedin' in session:
+        # The numberplate info is passed from a hidden input from viewcars page
         numberplate = request.form.get('numberplate')
-        print(numberplate)
         connection=getCursor()
         sql_indivcar='select * from car where numberplate = %s;'
         connection.execute(sql_indivcar, (numberplate,))
+        # Get the individul car info
         indivcar=connection.fetchone()
-        print(indivcar)
         return render_template('cardetails.html', username=session['username'], item=indivcar)
+    return redirect(url_for('login'))
 
 # http://localhost:5000/register - this will be the registration page, we need to use both GET and POST requests
 @app.route('/register', methods=['GET', 'POST'])
@@ -145,8 +151,7 @@ def register():
             # connect to db to get userid out from the user table after the new user has been added
             connection.execute('Select userid from user WHERE username=%s;', (username,))
             userid = connection.fetchone()
-            #print(userid)
-            # insert the new user information into the customer table as well, only userid will be recorded in this table when a customer registers
+            # Insert the new user information into the customer table as well, only userid will be recorded in this table when a customer registers
             connection.execute('INSERT INTO customer (userid) VALUES (%s);', (userid[0],))
             msg = 'You have successfully registered!'
     elif request.method == 'POST':

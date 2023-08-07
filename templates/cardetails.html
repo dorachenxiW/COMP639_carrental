@@ -1,23 +1,21 @@
 {% extends 'layout.html' %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Customer Home{% endblock %}
 
 {% block content %}
-
 
     <h2>My Dashboard</h2>
     <p>Welcome back, {{ username }}!</p>
     
     <div class="content">
     <h3 align="center">Car Details for Car {{item[1]}}</h3>
-    <table  class="table table-striped table-hover">
-        <tr><th>Image</th><th>Number Plate</th><th>Model</th><th>Seating Capacity</th><th>Year</th><th>Status</th><th>Rental Per Day ($/day)</th></tr>
+    <table>
+        <tr><th>Car Image</th><th>Number Plate</th><th>Model</th><th>Seating Capacity</th><th>Year</th><th>Status</th><th>Rental Per Day (NZD)</th></tr>
      
-        <tr><td>url_for car images</td><td>{{item[1]}}</td><td>{{item[2]}}</td><td>{{item[3]}}</td><td>{{item[4]}}</td><td>{{item[5]}}</td><td>{{item[6]}}</td></tr>
+        <tr><td><img src="/static/images/carimage1.jpg" alt="1st car image" width="150" height="120"/></td>
+        <td>{{item[1]}}</td><td>{{item[2]}}</td><td>{{item[3]}}</td><td>{{item[4]}}</td><td>{{item[5]}}</td><td>{{item[6]}}</td>
+        </tr>
     </table>
     </div>
     
-
-
-
 {% endblock %}

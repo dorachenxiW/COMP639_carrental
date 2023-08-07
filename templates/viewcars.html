@@ -1,0 +1,31 @@
+{% extends 'layout.html' %}
+
+{% block title %}Customer Home{% endblock %}
+
+{% block content %}
+
+
+    <h2>My Dashboard</h2>
+    <p>Welcome back, {{ username }}!</p>
+    
+    <div class="content">
+       
+    <h3 align="center">List of Available Cars</h3>
+    <table align="center">
+        <tr><th>Number Plate</th><th>Model</th></tr>
+        {% for car in carlist %}
+        <tr>
+            <td><form action="/home/viewcars/cardetail" method="POST">
+                <input type="hidden" name="numberplate" id="numberplate" value="{{car[1]}}">
+                <button type="submit" class="btn btn-link" >{{car[1]}}</form></td>
+                    
+            <td>{{car[2]}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    </div>
+    
+
+
+
+{% endblock %}
