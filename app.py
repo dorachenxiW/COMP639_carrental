@@ -27,6 +27,18 @@ def getCursor():
     dbconn = connection.cursor()
     return dbconn
 
+def uniqueUsername(connection, username):
+    sql='SELECT COUNT(*) FROM user WHERE username = %s;'
+    connection.execute(sql, (username,))
+    count = connection.fetchone()
+    return count[0] == 0
+
+def uniqueNumberPlate(connection, numberplate):
+    sql='SELECT COUNT(*) FROM car WHERE numberplate = %s;'
+    connection.execute(sql, (numberplate,))
+    count = connection.fetchone()
+    return count[0] == 0
+
 #http://localhost:5000/ - this is the default page. From this page, user can choose to log in or register. Admin button will be directed to the login page as well.  
 @app.route("/")
 def default():
@@ -191,7 +203,7 @@ def profile():
     # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
-
+# http://localhost:5000/profile/edit -this page gets the userid and shows the account that needs to be edited and land on the correct html page
 @app.route('/profile/edit', methods=['GET','POST'])
 def editprofile():
     if 'loggedin' in session:
@@ -217,18 +229,19 @@ def editprofile():
             return render_template('editprofile_admin.html', account=account2)
     return redirect(url_for('login'))
 
+# http://localhost:5000/profile/edit/update - this page collects the userinput from the html form 
+# and the function updateds the database then direct the user to the correct page
 @app.route('/profile/edit/update', methods=['GET','POST'])
 def updateprofile():
     if 'loggedin' in session:
         # Get the updated info from the form
+        connection = getCursor()
         username=request.form.get('username')
-        #print(username)
         firstname=request.form.get('firstname')
         lastname=request.form.get('lastname')
         address=request.form.get('address')
         phone=request.form.get('phone')
         email=request.form.get('email')
-        connection = getCursor()
         # Update the user table now 
         connection.execute('UPDATE user SET username=%s, email=%s WHERE userid=%s;', (username, email, session['id'],))
         # Get account information in order to check the role of the user 
@@ -245,7 +258,7 @@ def updateprofile():
             return redirect(url_for('profile'))
     return redirect(url_for('login'))
 
-# change password for users
+#  http://localhost:5000/changepassword
 @app.route('/profile/changepassword', methods=['POST'])
 def changepassword():
     if 'loggedin' in session:
@@ -261,6 +274,7 @@ def changepassword():
             return render_template('changepassword_admin.html')
     return redirect(url_for('login'))
 
+# http://localhost:5000/profile/changepassword/update - this function gets dat from the previous html page and update the database
 @app.route('/profile/changepassword/update', methods=['GET','POST'])
 def updatepassword():
     if 'loggedin' in session:
@@ -274,19 +288,14 @@ def updatepassword():
         return redirect(url_for('profile'))
     return redirect(url_for('login'))
 
-# staff page 
+#  http://localhost:5000/staff - this page lands on the staff home page
 @app.route('/staff')
 def staff():
     if 'loggedin' in session:
-        # connect to db to get back the account info
-        connection=getCursor()
-        sql='SELECT * FROM user LEFT JOIN staff ON user.userid = staff.userid WHERE user.userid = %s;'
-        connection.execute(sql, (session['id'],))
-        account=connection.fetchone()
         return render_template('staffhome.html', username=session['username'])
     return redirect(url_for('login'))
 
-# view customers from the staff page 
+# http://localhost:5000/staff/viewcustomers - this page views customers from the staff page 
 @app.route('/staff/viewcustomers')
 def viewcustomers():
     if 'loggedin' in session:
@@ -298,7 +307,7 @@ def viewcustomers():
         return render_template('viewcustomers.html', username=session['username'], customerlist=customerList)
     return redirect(url_for('login'))
 
-# view and manage cars from the staff page
+# http://localhost:5000/staff/managecars - this page views and manages cars from the staff page
 @app.route('/staff/managecars')
 def managecars():
     if 'loggedin' in session:
@@ -317,7 +326,7 @@ def managecars():
             return render_template('managecars_admin.html', username=session['username'], carlist=carList)
     return redirect(url_for('login'))
 
-# Add car from the staff car management page or admin page
+# http://localhost:5000/staff/managecars/add - this function adds car from the staff car management page or admin page
 @app.route('/staff/managecars/add', methods=['POST'])
 def addcar():
     if 'loggedin' in session:
@@ -331,9 +340,11 @@ def addcar():
             return render_template('addcar_admin.html')
     return redirect(url_for('login'))
 
+# http://localhost:5000/staff/managecars/add/update - this function updates the database
 @app.route('/staff/managecars/add/update', methods=['GET','POST'])
 def update_addcar():
     if 'loggedin' in session:
+        connection=getCursor()
         # Get the car details from the form
         numberplate=request.form.get('numberplate')
         model=request.form.get('model')
@@ -341,14 +352,15 @@ def update_addcar():
         year=request.form.get('year')
         status=request.form.get('status')
         rentalperday=request.form.get('rentalperday')
-        # Connect to db and update the info above into the db
-        connection=getCursor()
+         # Check if numberplate is unique
+        if not uniqueNumberPlate(connection, numberplate):
+            return "This car already exists. Please choose another car with a different number plate."
         sql='INSERT INTO car (numberplate, model, seatingcapacity, year, status,rentalperday) VALUES (%s, %s, %s, %s, %s, %s);'
         connection.execute(sql, (numberplate, model, seatingcapacity, year, status, rentalperday,))
         return redirect(url_for('managecars'))
     return redirect(url_for('login'))
 
-# Update car info from the staff car management page 
+# http://localhost:5000/staff/managecars/edit - this function gets the carid from the html form and direct user to the correct page
 @app.route('/staff/managecars/edit', methods=['GET','POST'])
 def editcar():
     if 'loggedin' in session:
@@ -368,6 +380,7 @@ def editcar():
             return render_template('editcar_admin.html', car = car)
     return redirect(url_for('login'))
 
+#http://localhost:5000/staff/managecars/edit/update - this function updates the database
 @app.route('/staff/managecars/edit/update', methods=['GET','POST'])
 def update_editcar():
     if 'loggedin' in session:
@@ -384,26 +397,25 @@ def update_editcar():
         return redirect(url_for('managecars'))
     return redirect(url_for('login'))
 
-# Delete car from the staff car management page 
+# http://localhost:5000/staff/managecars/delete - this function deletes car from the edit car page 
 @app.route('/staff/managecars/delete', methods=['GET','POST'])
 def deletecar():
     if 'loggedin' in session:
-        #msg=''
         carid=request.form.get('carid')
         connection=getCursor()
         sql='DELETE FROM car WHERE carid=%s;'
         connection.execute(sql,(carid,))
-        #msg='You have sucessfully deleted the car!'
         return redirect(url_for('managecars'))
     return redirect(url_for('login'))
 
-#http://locoalhost:5000/admin/ -- this is the admin page.
+# http://locoalhost:5000/admin/ -- this is the admin page.
 @app.route('/admin')
 def admin():
     if 'loggedin' in session:
         return render_template('adminhome.html', username=session['username'])
     return redirect(url_for('login'))
 
+# http://locoalhost:5000/admin/managecustomers - this page displays all the customers and the link to manage them
 @app.route('/admin/managecustomers')
 def managecustomers():
     if 'loggedin' in session:
@@ -414,15 +426,18 @@ def managecustomers():
         return render_template('managecustomers.html',customerlist=customerList)
     return redirect(url_for('login'))
 
+# http://locoalhost:5000/admin/managecustomers/add - this page has the form for user inputing new customer info
 @app.route('/admin/managecustomers/add', methods=['POST'])
 def addcustomer():
     if 'loggedin' in session:
         return render_template('addcustomer.html')
     return redirect(url_for('login'))
 
+# http://locoalhost:5000/admin/managecustomers/add/update - this function collects the user input from the previous html and updates the database 
 @app.route('/admin/managecustomers/add/update', methods=['GET','POST'])
 def updatecustomer():
     if 'loggedin' in session:
+        connection=getCursor()
         username=request.form.get('username')
         password=request.form.get('password')
         hashedpd= bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
@@ -431,10 +446,12 @@ def updatecustomer():
         lastname=request.form.get('lastname')
         phone=request.form.get('phone')
         address=request.form.get('address')
-
-        connection=getCursor()
+        # Check if username is unique
+        if not uniqueUsername(connection, username):
+            return "Username is already taken. Please choose a different username."
         sql1='INSERT INTO user (username, password, email, role) VALUES (%s, %s, %s, %s);'
         connection.execute(sql1,(username, hashedpd, email,'customer',))
+        # After updating the user table, the new username is picked in order to get the new userid for updating the customer table
         connection.execute('SELECT * FROM user WHERE username = %s', (username,))
         newuser=connection.fetchall()
         newuserid=newuser[0][0]
@@ -443,6 +460,7 @@ def updatecustomer():
         return redirect(url_for('managecustomers'))
     return redirect(url_for('login'))
 
+# http://locoalhost:5000/admin/managecustomers/edit - this pages gets userid from hidden input and finds the right customer to edit 
 @app.route('/admin/managecustomers/edit', methods=['GET','POST'])
 def editcustomer():
     if 'loggedin' in session:
@@ -456,6 +474,7 @@ def editcustomer():
         return render_template('editcustomer.html', customer=customer)
     return redirect(url_for('login'))
 
+# http://locoalhost:5000/admin/managecustomers/edit/update - this function gets data from the last html page and updates the database 
 @app.route('/staff/managecustomers/edit/update', methods=['GET','POST'])
 def update_editcustomer():
     if 'loggedin' in session:
@@ -474,6 +493,7 @@ def update_editcustomer():
         return redirect(url_for('managecustomers'))
     return redirect(url_for('login'))
 
+# http://locoalhost:5000/admin/managecustomers/delete - this function deletes the user and customer info from both tables
 @app.route('/admin/managecustomers/delete', methods=['GET','POST'])
 def deletecustomer():
     if 'loggedin' in session:
@@ -486,8 +506,8 @@ def deletecustomer():
         return redirect(url_for('managecustomers'))
     return redirect(url_for('login'))
 
-
-@app.route('/admin/managestaff', methods=['GET','POST'])
+# http://locoalhost:5000/admin/managestaff - this page displays all the staff and the buttons of management
+@app.route('/admin/managestaff')
 def managestaff():
     if 'loggedin' in session:
         connection=getCursor()
@@ -497,17 +517,19 @@ def managestaff():
         return render_template('managestaff.html', stafflist=staffList)
     return redirect(url_for('login'))
 
-
-# Add staff from admin page 
+# http://locoalhost:5000/admin/managestaff/add - this page shows the form of adding staff info
 @app.route('/admin/managestaff/add', methods=['POST'])
 def addstaff():
     if 'loggedin' in session:
         return render_template('addstaff.html')
     return redirect(url_for('login'))
 
+# http://locoalhost:5000/admin/managestaff/add/update - this page gets data from the previous html form and updates the database
 @app.route('/admin/managestaff/add/update', methods=['GET','POST'])
 def updatestaff():
     if 'loggedin' in session:
+        connection=getCursor()
+        
         username=request.form.get('username')
         email=request.form.get('email')
         role=request.form.get('role')
@@ -517,7 +539,10 @@ def updatestaff():
         address=request.form.get('address')
         password=request.form.get('password')
         hashedpd= bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-        connection=getCursor()
+        
+        if not uniqueUsername(connection, username):
+            return "Username is already taken. Please choose a different username."
+
         sql1='INSERT INTO user (username, password, email, role) VALUES (%s, %s, %s, %s);'
         connection.execute(sql1,(username, hashedpd, email, role,))
         connection.execute('SELECT * FROM user WHERE username = %s', (username,))
@@ -528,10 +553,11 @@ def updatestaff():
         return redirect(url_for('managestaff'))
     return redirect(url_for('login'))
 
+# http://locoalhost:5000/admin/managestaff/edit - this page gets the correct userid from the form and opens a new user input form
 @app.route('/admin/managestaff/edit', methods=['GET','POST'])
 def editstaff():
     if 'loggedin' in session:
-        # Get userid from the hidden input within the form to decide which car is edited 
+        # Get userid from the hidden input within the form to decide which staff is edited 
         userid=request.form.get('userid')
         # Connect to db to get the car info with the userid above
         connection=getCursor()
@@ -541,7 +567,8 @@ def editstaff():
         return render_template('editstaff.html', staff=staff)
     return redirect(url_for('login'))
 
-@app.route('/staff/managestaff/edit/update', methods=['GET','POST'])
+# http://locoalhost:5000/admin/managestaff/edit/update - this function gets the user input data and updates the database 
+@app.route('/admin/managestaff/edit/update', methods=['GET','POST'])
 def update_editstaff():
     if 'loggedin' in session:
         userid=request.form.get('userid')
@@ -559,7 +586,7 @@ def update_editstaff():
         return redirect(url_for('managestaff'))
     return redirect(url_for('login'))
 
-# Delete staff from the admin managestaff page 
+# http://locoalhost:5000/admin/managestaff/delete- this page delete a staff from the user and staff tables
 @app.route('/admin/managestaff/delete', methods=['GET','POST'])
 def deletestaff():
     if 'loggedin' in session:
